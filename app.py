@@ -47,29 +47,31 @@ def calculate_cost(usage):
 def generate_outline(text, model):
     global conversation_history, total_cost
     conversation_outline = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": f"Your task is to first read the document and output a detailed numbered outline of the document section by section. Provide high-level overviews of the subjects within each section. At the end output the number of parent bullet points like this: '14 bullets'\n\n{text}"}
+        {"role": "system", "content": "You are a helpful assistant designed to output JSON."},
+        {"role": "user", "content": f"Your task is to first read the document and output a detailed numbered outline of the document section by section. Provide high-level overviews of the subjects within each section. Output the result as a JSON object with two properties: 'outline' for the detailed outline, and 'num_bullets' for the number of parent bullet points.\n\n{text}"}
     ]
-    response = openai.ChatCompletion.create(model=model, messages=conversation_outline)
-    outline = response['choices'][0]['message']['content']
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=conversation_outline,
+        response_format={"type": "json_object"}
+    )
+    result = response['choices'][0]['message']['content']
     
     # Calculate and accumulate cost
     total_cost += calculate_cost(response['usage'])
     
-    # Check if the search result is not None
-    match = re.search(r'(\d+) bullets', outline)
-    if match:
-        num_bullets = int(match.group(1))
-    else:
-        num_bullets = 0  # or handle the error as needed
+    # Parse the JSON response
+    parsed_result = json.loads(result)
+    outline = parsed_result['outline']
+    num_bullets = parsed_result['num_bullets']
     
-    conversation_history = conversation_outline + [{"role": "assistant", "content": outline}]
+    conversation_history = conversation_outline + [{"role": "assistant", "content": result}]
     return outline, num_bullets
 
 def generate_summary(text, bullet_number, model):
     global conversation_history, total_cost
     conversation_summary = conversation_history + [
-        {"role": "user", "content": f"Using this outline as a reference, your task is to create a concise summary that DOES NOT exclude important details and examples mentioned in the source text. If information from the outline is unclear or not present in the document, output 'I Don't Know' in bold text, so I will see it. You must output in a structured Markdown output with a proper heading structure and use of tables for tabular data.\n\nLet's start with bullet {bullet_number}. **DO NOT** go beyond the bullet you are instructed to write. **DO NOT** output the number for the section title."}
+        {"role": "user", "content": f"Using this outline as a reference, your task is to create a concise summary that DOES NOT exclude important details and examples mentioned in the source text. You must output in a structured Markdown output with a proper heading structure starting at h2. Use all markdown features that are relevant to your summary in such as tables, quotes, sub headings, etc.\n\nLet's start with bullet {bullet_number}. **DO NOT** go beyond the bullet you are instructed to write. **DO NOT** output the number for the section title. **ONLY** output the summary for the bullet you are instructed to write. **DO NOT** output anything else."}
     ]
     response = openai.ChatCompletion.create(model=model, messages=conversation_summary)
     summary = response['choices'][0]['message']['content']
@@ -89,7 +91,7 @@ def generate_tldr(text, model):
     global total_cost
     conversation_tldr = [
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": f"Create a TL;DR of the provided text. H2 for the TL;DR heading.\n\n---\n\n{text}"}
+        {"role": "user", "content": f"Create a TL;DR of the provided text. H2 for the TL;DR heading.\n\n---\n\n{text}. **ONLY** output the TL;DR you are instructed to write. **DO NOT** output anything else."}
     ]
     response = openai.ChatCompletion.create(model=model, messages=conversation_tldr)
     tldr = response['choices'][0]['message']['content']
@@ -172,5 +174,5 @@ if __name__ == "__main__":
 
 # ToDO
 # update the toggle so the cost calculation changes when the model changes
-# update the prompts so they output with consistent headings and have better system prompts and see what's up with the extra lines and the "I Don't Knows". I would also like to not have any other output other than the markdown
+# update the prompts so they output with consistent headings and have better system prompts. I would also like to not have any other output other than the markdown
 # Make the outline a step that can be regenerated instead of it auto going to the next step
