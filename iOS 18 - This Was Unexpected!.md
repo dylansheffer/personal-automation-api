@@ -1,188 +1,169 @@
-Would you like me to help with anything else?
+# iOS 18 - This Was Unexpected!
 
-### Summary of iOS 18 Beta 3 Features
+## TL;DR
 
-| Feature                           | Details                                                                                                                                                                                                                                      |
-|-----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Apple Intelligence in Siri        | Visible option in Xcode simulator with beta status.                                                                                                                            |
-| Jin Emoji UI Bug                  | Preview of new Jin Emoji UI with potential functionality.                                                                                                                      |
-| Lock Screen Changes               | Dynamic wallpaper, addition of Apple Music control on lock screen.                                                                                                             |
-| Control Center Changes            | Updates to TV remote icon size, personal hotspot color, homekit device controls.                                                                                                |
-| Settings Updates                  | Separation of shutdown and reset, removal of car stereo output setting, RCS messaging update.                                                                                  |
-| Calculator App Update             | Addition of rad (radius) button, temperature conversion feature.                                                                                                               |
-| AirPods Pro 2 Beta Firmware Update| Introduction of new build number and integration with iOS 18 features.                                                                                                          |
+iOS 18 Beta 3 offers lock screen customization, dynamic wallpapers, and Control Center tweaks but has several bugs. Public beta and more updates are coming. AT&T had a data breach, Siri 2.0 delayed, and new iPhone and Apple Watch features are teased. An AirTag helped recover a stolen car, proving its tracking value.
 
-**I Don't Know**
+## iOS 18 Features and Changes
 
-### Summary of iOS 18 Beta 3 Features
+### Overview of iOS 18 Beta 3
+iOS 18 beta 3 was released, bringing various features and changes to test and explore. Though Beta 4 is anticipated to be delayed, this version includes several new elements worth discussing.
 
-| Feature                | Description                                                                                                                                                                       |
-|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Apple Intelligence     | New Siri option visible only in Xcode simulator, with beta status.                                                                                                                  |
-| Jin Emoji UI Bug       | Preview of the Jin Emoji UI, a potential future feature for emoji creation based on text input.                                                                                     |
-| Lock Screen Changes    | Introduction of dynamic wallpaper and Apple Music control on the lock screen.                                                                                                      |
-| Control Center Changes | Various updates including adjustments to icon sizes, color changes, and the reintroduction of homekit device controls.                                                           |
-| Settings Updates       | Separation of shutdown and reset options in the settings, removal of specific Siri output settings, and a new section for RCS messaging.                                             |
-| Calculator App Update  | Addition of a rad (radius) button for temperature conversion in the calculator application.                                                                                        |
-| AirPods Pro 2 Update   | New beta firmware update for AirPods Pro 2 with integration of iOS 18 features.                                                                                                    |
+### New Unvisible Feature in Xcode Simulator
+One notable addition only accessible through the Xcode simulator on a Mac is the Apple Intelligence in Siri's settings. This includes Apple Intelligence's logo and a beta label, hinting at forthcoming features that may be enabled either server-side by Apple or included in future betas.
 
-I will now proceed to the next bullet point.
+### Jin Emoji UI Bug
+Beta 3 users have reported encountering the Jin Emoji UI when opening their emoji keyboard. Although this bug inhibits interaction, it provides a glimpse of the Jin Emoji feature, which allows users to create emojis based on typed text. This feature is anticipated to be more impactful than initially expected, enhancing text communication with adaptive emoji responses.
 
-### Summary of iOS 18 Beta 3 Features
+### New Features Visible on the Device
+Several functional updates are directly visible on devices running Beta 3, including:
+- **Lock Screen Customization:** Users can now customize their lock screens more extensively. This includes a new method to eliminate current lock screens and the introduction of dynamic wallpapers that change colors throughout the day.
+- **Dynamic Wallpaper:** Wallpapers now have the ability to change colors dynamically over the day.
+- **Quick Apple Music Access from Lock Screen:** A new Apple Music shortcut on the lock screen allows users to open the app directly by long-pressing, providing quick music access.
 
-| Feature                     | Details                                                                                 |
-|-----------------------------|-----------------------------------------------------------------------------------------|
-| Apple Intelligence in Siri  | Visible in Xcode simulator with beta status.                                            |
-| Jin Emoji UI Bug            | Preview of upcoming Jin Emoji UI through a bug.                                          |
-| Lock Screen Changes         | Dynamic wallpaper and new Apple Music control on the lock screen.                        |
-| Control Center Changes      | Updates to TV remote icon size, personal hotspot color, and homekit device controls.    |
-| Settings Updates            | Separation of shutdown and reset, removal of car stereo setting, RCS messaging update.  |
-| Calculator App Update       | Addition of rad and temperature conversion buttons.                                      |
-| AirPods Pro 2 Firmware      | Introduction of new beta firmware with iOS 18 features integration.                      |
+### Control Center Changes
+Beta 3 introduces multiple Control Center adjustments:
+- **TV Remote Icon Size Adjustment:** The TV remote icon is reduced in size, enhancing visual ergonomics.
+- **Personal Hotspot Icon Change:** The hotspot icon's slash line color has been altered from white to gray.
+- **Homekit Device Toggle Size Adjustment:** The small square Homekit device toggles are back, offering more convenient use.
+- **VPN Function Fix:** VPN controls in the connectivity section now function correctly, marking an improvement from previous betas.
 
-### 4. iOS 18 Beta 3 Features
+### Settings Adjustments
+New changes in the settings enrich user experience:
+- **Separate Shutdown in General Settings:** "Shutdown" is now a separate section under General settings, previously bundled with iPhone transfer/reset options.
+- **Removal of Car Stereo Siri Responses:** The sub-menu for changing Siri response behavior when connected to car stereos or CarPlay has been removed.
+- **RCS Messaging Standalone Section:** RCS messaging settings now have their own section, providing users with a simple on/off toggle and a description.
 
-| Features                      | Details                                                                                                                                                   |
-|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Apple Intelligence in Siri    | Option visible in Xcode simulator with beta status revealed.                                                                                              |
-| Jin Emoji UI Bug              | Preview of Jin Emoji UI, showcasing potential functionality and bug instance.                                                                             |
-| Lock Screen Changes           | Dynamic wallpaper displayed, introduction of Apple Music control on lock screen.                                                                          |
-| Control Center Changes        | Various updates including TV remote icon size, personal hotspot color, and homekit device controls.                                                       |
-| Settings Updates              | Separation of shutdown and reset, removal of car stereo output setting, and updates to RCS messaging.                                                      |
-| Calculator App Update         | Addition of rad (radius) button and temperature conversion feature in the calculator application.                                                        |
-| AirPods Pro 2 Beta Firmware   | Information on build number and integration with iOS 18 features.                                                                                          |
+### Calculator Changes
+The calculator app has been enhanced with a new "rad" (radius) button, visible in the scientific view. It alternates between displaying radius (rad) and degrees (deg). This change offers clearer option visibility and usability in both scientific and basic calculator modes.
 
-### 5. Latest Apple News
+### AirPods Pro 2 Beta Firmware Update
+A new beta firmware 75244B for AirPods Pro 2 was rolled out. This update integrates upcoming iOS 18 features, ensuring compatibility and new functionalities in line with OS advances.
 
-#### 5.1 AT&T Hack
-- **Details**: A data breach at AT&T compromised phone records but did not include personal information like social security numbers or content of calls.
-- **Key Points**: Stolen data includes call interactions, durations, and text info; AT&T confirms the hack but believes data isn't publicly available yet.
+### Common Bugs in iOS 18 Beta 3
+- **Home Screen Customization Issue:** A bug prevents the customization screen for icons from appearing if using a black background wallpaper. The temporary fix is changing both the wallpaper and home screen setup.
+- **Bug in the Tint Feature:** The newly introduced tint feature malfunctions, causing icons to be stuck in a tinted state. This issue mirrors earlier betas and persists.
+- **Spotlight Search Keyboard Bug:** A serious bug in Spotlight search causes the keyboard to disappear, with only a reboot solving the problem.
+- **RCS Messaging Bug:** RCS messaging erroneously tries to send messages as iMessages in some cases, leading to failed deliveries.
+- **Other Minor UI Bugs:** Users reported various interface bugs, including screen whiteouts upon opening apps, necessitating force quits and relaunches.
 
-I Don't Know
+### Performance Analysis (Geekbench Scores)
+The performance of Beta 3, as measured by Geekbench, showcases:
+- **Single-Core Score:** 2849
+- **Multi-Core Score:** Initial 7600+, later falling to 6941 pre-video
 
-### Section 6: Summary of iOS 18 Performance
+The multi-core performance dipped compared to Beta 1, though real-world performance remains stable and improved over beta predecessors.
 
-| Key Points                        | Details                                                                                      |
-|-----------------------------------|----------------------------------------------------------------------------------------------|
-| **Geekbench Scores**              | - Single-core: 2849, Multicore: 6941 (varied from previous beta versions)                    |
-| **Stability Improvements**        | - iOS 18 beta 3 marked as most stable yet, despite lingering bugs and UI issues.             |
-| **Battery Life Concerns**         | - Continues to be subpar, ongoing issues expected until around beta 5 release.               |
-| **Expectations**                  | - Public beta rollout imminent, followed by developer beta updates leading to final release. |
-
-### 7. iOS 18 Beta 3 Bugs
-
-| Bug Description       | Details                                                                                                   |
-|-----------------------|-----------------------------------------------------------------------------------------------------------|
-| Customization Issue   | Users with a black wallpaper faced an issue accessing customization settings, workaround was creating a new wallpaper. |
-| Dark Mode for Third-Party Apps | Third-party apps unexpectedly received dark mode, affecting user experience.                          |
-| Tint Feature Bug      | Tinted icons got stuck, causing them to remain tinted regardless of user attempts to modify settings.     |
-| Spotlight Search Bug  | Absence of keyboard in Spotlight search, requiring a reboot to resolve the issue.                         |
-| RCS Messaging Bug     | Problem with RCS messages being sent as iMessages especially to Android users, causing delivery failure. |
-| UI and App Stability Issues | Various UI bugs, instances of white screens for apps, and need for force-quitting apps for proper functionality. |
-
-**I Don't Know**
-
-### 8. iOS 18 Beta 3 Bugs
-
-1. **Customization Issue**
-    - Users experiencing inability to access customization with a black wallpaper.
-    - Workaround involves creating a new wallpaper to resolve the problem.
-
-2. **Dark Mode for Third-Party Apps**
-    - Majority of third-party applications now support dark mode.
-  
-3. **Tint Feature Bug**
-    - Issue where tinted icons get stuck, affecting the functionality.
-  
-4. **Spotlight Search Bug**
-    - Problem with missing keyboard in Spotlight search, making typing impossible.
-  
-5. **RCS Messaging Bug**
-    - Incorrect message delivery when attempting to send an RCS message as iMessage.
-  
-6. **UI and App Stability Issues**
-    - Various UI bugs reported, including white screen app problem requiring force quitting for resolution.
+### Battery Life Assessment
+Battery performance in Beta 3 remains subpar. Users experiencing significant battery drain are advised to wait for future betas, possibly around Beta 5, where battery efficiency typically improves significantly.
 
 ---
 
-### I Don't Know
+This detailed analysis of iOS 18 beta 3 covers all visible changes, background additions, common bugs, and an assessment of performance and battery life, providing a comprehensive overview of this version's state and development path.
 
-### Summary of iOS 18 Beta 3 Features and Bugs
+## Upcoming Expectations from Apple
 
-| Feature/Bug                        | Details                                                                                                                                                                                            |
-|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Apple Intelligence in Siri         | Previewed in Xcode simulator with beta status, likely upcoming feature change.                                                                                                                     |
-| Jin Emoji UI Bug                   | Reported bug showing Jin Emoji UI in emoji keyboard, under development with potential broad impact.                                                                                               |
-| Lock Screen Changes                | Added dynamic wallpaper and Apple Music control for quick access, enhancing lock screen functionality.                                                                                            |
-| Control Center Changes             | Notable adjustments like TV remote icon size, personal hotspot color, and homekit device controls, improving usability in Control Center.                                                        |
-| Settings Updates                   | Changes include separation of shutdown and reset, removal of car stereo output setting, and RCS messaging update, enhancing user interface and functionality.                                    |
-| Calculator App Update              | Addition of rad and temperature conversion buttons, providing extra functionality for users.                                                                                                      |
-| AirPods Pro 2 Beta Firmware Update | New build introduced with integration of iOS 18 features, enhancing user experience with firmware updates.                                                                                         |
+### Public Beta Release of iOS 18
+The release of iOS 18 public beta is highly anticipated and expected next week, during the week of July 15th. Apple has a pattern of releasing public betas on various weekdays, so the window for this release spans from July 15th to July 18th.
 
-### I Don't Know
+### Possible Re-release of Developer Beta 3
+A re-release of iOS 18 developer beta 3 may occur to align its build number with the upcoming public beta. The re-release could coincide with the public beta launch or happen shortly after, ensuring that developers and public testers are on the same page regarding updates and bug fixes.
 
-### Section Summary: iOS 18 Beta 3 Features
+### Developer Beta 4 and Public Beta 2 Predictions
+Following the public beta release and potential re-release of developer beta 3, iOS 18 developer beta 4 and public beta 2 are projected to launch in the final week of July, specifically the week of July 29th:
+- **Timeframe:** Historically, Apple follows a three-week interval between beta 3 and beta 4. This trend suggests a July 29th or 30th release for the next developer and public betas.
 
-| Feature                  | Details                                                                                    |
-|--------------------------|---------------------------------------------------------------------------------------------|
-| Apple Intelligence in Siri | The Apple Intelligence setting in Siri is visible in Xcode simulator with a beta status.  |
-| Jin Emoji UI Bug         | Users experienced a bug where the Gen Emoji UI popped up in the emoji keyboard, previewing its potential functionality. |
-| Lock Screen Changes      | Introduces dynamic wallpaper and an Apple Music control option on the lock screen for convenience. |
-| Control Center Changes   | Notable changes in the size of icons, personal hotspot color, homekit controls, and VPN functionality. |
-| Settings Updates         | Noteworthy changes include the separation of shutdown and reset options, removal of car stereo settings, and RCS messaging updates. |
-| Calculator App Update    | Adds a new rad (radius) button and temperature conversion feature for enhanced usability. |
-| AirPods Pro 2 Beta Firmware Update | The introduction of the build number 75244 B for the AirPods Pro 2 update, aligning with iOS 18 features. |
+### Long-term Release Schedule
+Assuming Apple maintains its typical two-week beta cycle post Beta 4, the subsequent updates will likely continue into August. The final release of iOS 18 is anticipated around mid-September, ideally during the week of September 16th. This timeframe aligns with Apple's previous release patterns, paving the way for a stable, polished final version.
+
+---
+
+Summary of the expectations from Apple encapsulates the timeline for iOS 18 public beta release, developer beta re-releases, and future beta predictions leading up to the final launch.
+
+## Latest Apple News
+
+### AT&T Hack Disclosure
+#### Details of the Hack
+- **Incident:** AT&T experienced a significant data breach disclosed recently, affecting potentially large numbers of customers.
+- **Mechanism:** The breach involved hackers accessing AT&T's records through Snowflake, their cloud platform.
+- **Timeframe:** The major breach occurred in 2022, with a smaller breach in January 2023.
+
+#### AT&T's Response
+- **Data Compromised:** 
+  - Interaction data including numbers called or messaged, call durations, and how often interactions occurred.
+  - No sensitive personal information such as Social Security numbers, birthdates, or the actual content of calls or messages was leaked.
+- **Public Access:** Currently, AT&T believes the stolen data hasn't been made publicly available.
   
-I Don't Know
+### Siri 2.0 Delay
+#### Mark Gurman’s Report on Siri 2.0 Delay
+- **Expected Release:** Gurman anticipates Siri 2.0 to arrive in spring 2025 with the iOS 18.4 update, delayed from the initial planned release.
+- **Beta Testing:** Beta testers could start using Siri 2.0 in January.
 
-### 11. iOS 18 Beta 3 Bugs
+#### Expected Feature Releases Later This Year
+- **New Siri UI and ChatGPT Integration:** Users can expect these features later this year, with additional AI tools such as Jin Emoji and AI writing tools also on the horizon.
 
-In iOS 18 beta 3, several bugs were reported:
-    
-| Bug Description           | Resolution/Workaround            |
-|-------------------------|--------------------------------|
-| Customization Issue      | Workaround: Change wallpaper from black to access customization.  |
-| Dark Mode for Third-Party Apps | Issue with tinted icons getting stuck, affecting visual appearance. |
-| Spotlight Search Bug       | Spotlight not showing keyboard for typing, fixed with a reboot.   |
-| RCS Messaging Bug           | Incorrect sending format causing delivery failures.  |
-| UI and App Stability Issues | Instances of white screens, forced quitting needed for app functionality. |
+### iPhone 16 Improvements
+#### Improved Charging Speeds
+- **Wireless Charging:** The iPhone 16 Pro models will support 20W wireless MagSafe charging, a noticeable improvement from the current 15W.
+- **Wired Charging:** Charging speeds will increase to 40W wired, up from 27W.
 
+#### Larger Batteries
+- **Impact:** Despite improved charging speeds, the larger batteries in iPhone 16 Pro models might mitigate some of these benefits by necessitating more power.
 
+### iPhone 17 Pro Max Camera Upgrades
+#### Introduction of 48 Megapixel Tetra Prism Camera
+- **Camera Enhancement:** The iPhone 17 Pro Max is projected to feature a 48-megapixel tetra prism camera, offering better photo quality and zoom functionality.
+- **Uncertainty:** It remains unclear if other models will receive these upgrades simultaneously.
 
-### 12. iOS 18 Beta 3 Bugs
+### Cheaper Apple Watch SE Rumors
+#### Plastic Casing Testing
+- **Material Change:** Apple is considering using rigid plastic casing instead of aluminum for a new, more affordable Apple Watch SE.
+- **Target Market:** The idea is potentially aiming to rival the $99 Samsung Galaxy Watch FE.
 
-| Bug Description        | Solution/Impact                               |
-|------------------------|-----------------------------------------------|
-| Customization Issue    | Unable to access customization with black wallpaper, workaround provided. |
-| Dark Mode for Third-Party Apps | Dark mode introduced with issues, tinted icons bug reported. |
-| Spotlight Search Bug   | Missing keyboard in Spotlight search, resolved with reboot. |
-| RCS Messaging Bug      | Sending issues between RCS and iMessage reported. |
-| UI and App Stability Issues | Various UI bugs, white screen app issue, force quitting needed. |
+#### Community Feedback
+- **Reception:** Feedback is mixed, with concerns about the feel and durability of plastic versus aluminum.
 
-### Summary of iOS 18 Beta 3 Features:
+### Apple Watch Series 10
+#### Larger Display and New Chip
+- **Display Size:** The rumored Series 10 will feature a larger display.
+- **Chip Update:** A new chip is expected to provide performance improvements.
 
-| Feature Highlight        | Details                                                                                     |
-|-------------------------|--------------------------------------------------------------------------------------------|
-| Apple Intelligence in Siri | The presence of Apple Intelligence in Siri, accessible through Xcode simulator, marked as beta. |
-| Jin Emoji UI Bug           | Users experiencing a bug where Jin Emoji UI appears in the emoji keyboard, showcasing potential functionality. |
-| Lock Screen Changes       | Includes dynamic wallpaper display and a new Apple Music control option on the lock screen. |
-| Control Center Updates    | Notable changes in TV remote icon size, personal hotspot control color, and return of small square homekit device controls. |
-| Settings Enhancements     | Separation of shutdown and reset options, removal of car stereo output setting, and restructuring of RCS messaging. |
-| Calculator App Update      | Introduction of a rad button in the calculator app for radius and temperature conversion. |
-| AirPods Pro 2 Update       | Announcement of a new beta firmware update for AirPods Pro 2 with build number and integration with iOS 18 features. |
+#### Health Monitoring Feature Delays
+- **High Blood Pressure and Sleep Apnea Detection:** Apple's technology for these health features has faced difficulties, delaying their release.
+- **Impact on Features:** These setbacks mean these much-anticipated health features may not be available immediately.
 
-### I Don't Know
+---
 
-### Summary of iOS 18 Beta 3 Features and Bugs
+This section captures the latest developments, including a major AT&T data breach, delayed Siri 2.0, and new features for the iPhone and Apple Watch. It summarizes the current status and expected updates for Apple products and services.
 
-| Feature/Bug                            | Details                                                                                                               |
-|----------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| Apple Intelligence in Siri            | Displayed in Xcode simulator with beta status.                                                                       |
-| Jin Emoji UI Bug                      | Previews upcoming Jin Emoji UI.                                                                                      |
-| Lock Screen Changes                   | Dynamic wallpaper, Apple Music control added.                                                                         |
-| Control Center Changes                | TV remote icon size adjusted, hotspot color change, homekit device controls back.                                     |
-| Settings Updates                      | Separation of shutdown and reset, removal of car stereo output setting, RCS messaging update.                        |
-| Calculator App Update                 | Addition of rad (radius) button, temperature conversion feature.                                                      |
-| AirPods Pro 2 Beta Firmware Update    | New build number (75244 B) with integration of iOS 18 features.                                                      |
+## Air Tag Story
 
-### I Don't Know
+### Singapore Car Theft Incident
+In a clever use of Apple's AirTag device, a man named Zach in Singapore managed to recover his stolen car. Here's how it unfolded:
+
+1. **Incident Occurrence:**
+   - Zach went shopping at a mall and used valet parking.
+   - Upon returning, the valet only had his keys, and not his car, indicating that the car was stolen without the keys being taken.
+
+2. **Use of Social Media and Police Report:**
+   - Zach promptly reported the theft to the police and posted on Facebook that his car had a GPS tracker (referring to the AirTag).
+
+3. **Tracking the Car:**
+   - Friends of Zach used the Find My app and located the car at a private residence about 17 kilometers away.
+   - They relayed this information to the police, who acted swiftly and arrived at the scene within 10 minutes, leading to the arrest of the thief.
+
+### Recovery Using AirTag
+- **Role of AirTag:**
+  - The AirTag placed in Zach's car was pivotal in its recovery. Despite the shopping mall staff claiming CCTV footage helped, Zach attributes the primary success to the AirTag.
+  
+- **Importance of Keeping AirTag Batteries Charged:**
+  - Zach's story underscores the importance of ensuring that AirTags have a charged battery. Regular checks can prevent the device from dying unnoticed, ensuring it's functional when needed.
+
+### Outcome and Reflection
+- **Vehicle Recovery:**
+  - Thanks to the AirTag, Zach's vehicle, a Honda HRV, was successfully retrieved.
+
+- **Community Takeaway:**
+  - This incident highlights the usefulness of AirTags in tracking and recovering stolen items and serves as a reminder to keep these devices charged and properly maintained.
+
+By documenting this real-world example, Zach's experience illustrates the effectiveness of using AirTags for security and recovery purposes, providing valuable insights for other AirTag users.
