@@ -9,7 +9,7 @@ import os
 import asyncio
 import json
 import logging
-
+# TODO make it possible to stop between each step and adjust the value before continuing. I would also like toggles whether I'd like it to stop at a particular step or just continue automatically. Maybe a complete auto at the top and then sub toggles under. I would like an edit button that let's me tweak the generated content before it continues on.
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -51,6 +51,13 @@ def get_video_title(video_id):
     soup = BeautifulSoup(response.text, 'html.parser')
     title = soup.find('meta', {'name': 'title'})['content']
     return title
+
+def get_video_author(video_id):
+    url = f"https://www.youtube.com/watch?v={video_id}"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    author_element = soup.select_one('div#container.style-scope.ytd-channel-name a.yt-simple-endpoint')
+    return author_element.text if author_element else "Unknown Author"
 
 def get_transcription(video_id):
     transcript = YouTubeTranscriptApi.get_transcript(video_id)
@@ -168,11 +175,11 @@ Remember, it is ok to to initially consider a word as misspelled but determine t
     return markdown_table, total_cost
 
 
-def generate_outline(video_title, transcription, transcription_errors, model):
+def generate_outline(video_title, video_author, transcription, transcription_errors, model):
     conversation_outline = [
         {"role": "system", "content": "You are a helpful assistant designed to output JSON."},
         {"role": "system", "content": f"{transcription_errors}"},
-        {"role": "user", "content": f"Your task is to first read the document titled '{video_title}' and output a detailed numbered outline of the document section by section. Provide high-level overviews of the subjects within each section. Output the result as a JSON object with two properties: 'outline' for the detailed outline in ol markdown list resembling a table of contents with detailed subchapters, and 'num_bullets' for the number of parent bullet points.\n\n{transcription}"}
+        {"role": "user", "content": f"Your task is to first read the document titled '{video_title}' by {video_author} and output a detailed numbered outline of the document section by section. Provide high-level overviews of the subjects within each section. Output the result as a JSON object with two properties: 'outline' for the detailed outline in ol markdown list resembling a table of contents with detailed subchapters, and 'num_bullets' for the number of parent bullet points. Please make spelling corrections before writing the outline including correcting the spelling of the headings.\n\n{transcription}"}
     ]
     response = openai.ChatCompletion.create(
         model=model,
@@ -188,11 +195,11 @@ def generate_outline(video_title, transcription, transcription_errors, model):
     
     return outline, num_bullets, calculate_cost(response['usage'], model)
 
-def generate_summary(video_title, transcription, transcription_errors, outline, bullet_number, first_summary, model):
+def generate_summary(video_title, video_author, transcription, transcription_errors, outline, bullet_number, first_summary, model):
     conversation_summary = [
         {"role": "system", "content": "You are a helpful assistant designed to create structured summaries. You cover the essential information in your provided section and utilize complete sentences, lists, tables, quotes, etc to completely capture the original transcription."},
         {"role": "system", "content": f"{transcription_errors}"},
-        {"role": "user", "content": f"Using this outline as a reference to ensure you're covering all the points mentioned in the outline for the video titled '{video_title}', your task is to create a detailed summary that DOES NOT exclude important details and examples mentioned in the source text. You must output in a structured Markdown output with a proper heading structure starting at h2. Use all markdown features that are relevant to your summary such as tables, quotes, sub headings, etc. Be sure to correct spelling mistakes based on the identified problematic words above. Let's start with bullet {bullet_number}. **DO NOT** go beyond the bullet you are instructed to write. **DO NOT** output the number for the section title. **ONLY** output the summary for the bullet you are instructed to write. **DO NOT** output anything else.\n---\n\n## Video Outline\n{outline}\n\n## Video Transcription\n{transcription}\n\n"}
+        {"role": "user", "content": f"Using this outline as a reference to ensure you're covering all the points mentioned in the outline for the video titled '{video_title}' by {video_author}, your task is to create a detailed summary that DOES NOT exclude important details and examples mentioned in the source text. Use the author's name instead of referring to them as the speaker. If you use their name instead of channel name, put the channel name in parentheses. You must output in a structured Markdown output with a proper heading structure starting at h2. You must include all the sub-bullets mentioned in the outline. Please make spelling corrections before writing the summary including correcting the spelling of the headings. Use all markdown features that are relevant to your summary such as tables, quotes, sub headings, etc. Be sure to correct spelling mistakes based on the identified problematic words above. Let's start with bullet {bullet_number}. **DO NOT** go beyond the bullet you are instructed to write. **DO NOT** output the number for the section title. **ONLY** output the summary for the bullet you are instructed to write. **DO NOT** output anything else. Summaries of a bullet do not need to end in a conclusion.\n---\n\n## Video Outline\n{outline}\n\n## Video Transcription\n{transcription}\n\n"}
     ]
     if first_summary and bullet_number > 1:
         conversation_summary.append({"role": "assistant", "content": first_summary})
@@ -203,10 +210,10 @@ def generate_summary(video_title, transcription, transcription_errors, outline, 
     
     return summary, calculate_cost(response['usage'], model)
 
-async def generate_summaries_async(video_title, transcription, transcription_errors, outline, num_bullets, first_summary, model):
+async def generate_summaries_async(video_title, video_author, transcription, transcription_errors, outline, num_bullets, first_summary, model):
     tasks = []
     for i in range(2, num_bullets + 1):
-        tasks.append(asyncio.to_thread(generate_summary, video_title, transcription, transcription_errors, outline, i, first_summary, model))
+        tasks.append(asyncio.to_thread(generate_summary, video_title, video_author, transcription, transcription_errors, outline, i, first_summary, model))
     return await asyncio.gather(*tasks)
 
 def generate_tldr(complete_summary, model):
@@ -231,7 +238,7 @@ def generate_vocabulary(transcription, transcription_errors, generated_notes, mo
     conversation_vocab = [
         {"role": "system", "content": "You are a helpful assistant designed to extract and define key vocabulary terms."},
         {"role": "system", "content": f"{transcription_errors}"},
-        {"role": "user", "content": f"Extract important vocabulary words from the following transcription and generated notes, considering the potential transcription errors mentioned above. For each term, provide a concise definition. Format the output in markdown, with each term-definition pair in the format '> **Key Term**: {{definition}}'. Limit the output to 10 key terms. Focus on terms that are central to the video's content or are important for understanding the video's meaning. Only output the markdown text without codeblocks. \n\n---\n\n## Transcription\n{transcription}\n\n## Generated Notes\n{generated_notes}"}
+        {"role": "user", "content": f"Extract important vocabulary words from the following transcription and generated notes, considering the potential transcription errors mentioned above. For each term, provide a concise definition. Format the output in markdown, with each term-definition pair in the format '> **Key Term**: {{definition}}'. Limit the output to 10 key terms. Focus on terms that are central to the video's content or are important for understanding the video's meaning. Please make spelling corrections before writing terms. Only output the markdown text without codeblocks. \n\n---\n\n## Transcription\n{transcription}\n\n## Generated Notes\n{generated_notes}"}
     ]
     response = openai.ChatCompletion.create(model=model, messages=conversation_vocab)
     vocabulary = response['choices'][0]['message']['content']
@@ -258,10 +265,13 @@ def main():
                 with st.spinner("Fetching video title..."):
                     video_title = get_video_title(video_id)
 
+                with st.spinner("Fetching video author..."):
+                    video_author = get_video_author(video_id)
+
                 with st.spinner("Fetching transcription..."):
                     transcription = get_transcription(video_id)
                     # Save the transcription to a file
-                    with open(f"{video_id}_transcription.txt", "w", encoding="utf-8") as file:
+                    with open(f"{video_title}_transcription.txt", "w", encoding="utf-8") as file:
                         file.write(transcription)
 
                 with st.spinner("Determining transcription errors..."):
@@ -271,20 +281,39 @@ def main():
                     st.markdown(transcription_errors)
 
                 with st.spinner("Generating outline..."):
-                    outline, num_bullets, outline_cost = generate_outline(video_title, transcription, transcription_errors, model)
+                    outline, num_bullets, outline_cost = generate_outline(video_title, video_author, transcription, transcription_errors, model)
                     total_cost += outline_cost
-                    st.markdown("# Outline")
-                    st.markdown(outline)
+                
+                    outline_markdown = "# Outline\n\n"
+                    for item in outline:
+                        if isinstance(item, dict):
+                            # Assuming the dict has 'number' and 'text' keys
+                            number = item.get('number', '')
+                            text = item.get('text', '')
+                            if '.' in number:
+                                # This is a sub-bullet
+                                outline_markdown += f"    {text}\n"
+                            else:
+                                # This is a parent bullet
+                                outline_markdown += f"{text}\n"
+                        elif isinstance(item, str):
+                            # If it's a string, just add it as is
+                            outline_markdown += f"{item}\n"
+                        else:
+                            # For any other unexpected type, convert to string and add
+                            outline_markdown += f"{str(item)}\n"
+                    
+                    st.markdown(outline_markdown)
 
                 with st.spinner("Generating summary for bullet 1..."):
-                    first_summary, first_summary_cost = generate_summary(video_title, transcription, transcription_errors, outline, 1, None, model)
+                    first_summary, first_summary_cost = generate_summary(video_title, video_author, transcription, transcription_errors, outline, 1, None, model)
                     total_cost += first_summary_cost
                     st.markdown("# Summary for Bullet 1")
                     st.markdown(first_summary)
 
                 bullet_summaries = [first_summary]
                 with st.spinner("Generating summaries for remaining bullets..."):
-                    remaining_summaries = asyncio.run(generate_summaries_async(video_title, transcription, transcription_errors, outline, num_bullets, first_summary, model))
+                    remaining_summaries = asyncio.run(generate_summaries_async(video_title, video_author, transcription, transcription_errors, outline, num_bullets, first_summary, model))
                     for i, (summary, cost) in enumerate(remaining_summaries, start=2):
                         bullet_summaries.append(summary)
                         total_cost += cost
