@@ -123,11 +123,11 @@ Remember, it is ok to to initially consider a word as misspelled but determine t
         logger.info(f"Number of reasoning entries before filtering: {len(result['reasoning'])}")
         for entry in result['reasoning']:
             logger.info(f"Processing entry: {json.dumps(entry, indent=2)}")
-            confident = entry.get('confident', False)
             spelled_correct = entry.get('final_answer', {}).get('spelled_correct', True)
-            logger.info(f"Confident: {confident}, Spelled Correct: {spelled_correct}")
-            if confident and not spelled_correct:
-                filtered_reasoning.append(entry)
+            logger.info(f"Spelled Correct: {spelled_correct}")
+            # if not spelled_correct:
+            #     filtered_reasoning.append(entry)
+            filtered_reasoning.append(entry)
     else:
         logger.warning("No 'reasoning' key found in the API response")
 
@@ -144,7 +144,7 @@ Remember, it is ok to to initially consider a word as misspelled but determine t
 
     {json.dumps(filtered_reasoning, indent=2)}
 
-    Output the result as a markdown table."""
+    Output the result as a markdown table. Do not surround in codeblocks"""
 
     logger.info(f"Sending request for markdown table generation with {len(filtered_reasoning)} entries")
 
@@ -227,6 +227,19 @@ def generate_tldr(complete_summary, model):
     
     return response_punchy['choices'][0]['message']['content'], cost
 
+def generate_vocabulary(transcription, transcription_errors, generated_notes, model):
+    conversation_vocab = [
+        {"role": "system", "content": "You are a helpful assistant designed to extract and define key vocabulary terms."},
+        {"role": "system", "content": f"{transcription_errors}"},
+        {"role": "user", "content": f"Extract important vocabulary words from the following transcription and generated notes, considering the potential transcription errors mentioned above. For each term, provide a concise definition. Format the output in markdown, with each term-definition pair in the format '> **Key Term**: {{definition}}'. Limit the output to 10 key terms. Focus on terms that are central to the video's content or are important for understanding the video's meaning. Only output the markdown text without codeblocks. \n\n---\n\n## Transcription\n{transcription}\n\n## Generated Notes\n{generated_notes}"}
+    ]
+    response = openai.ChatCompletion.create(model=model, messages=conversation_vocab)
+    vocabulary = response['choices'][0]['message']['content']
+    
+    cost = calculate_cost(response['usage'], model)
+    
+    return vocabulary, cost
+
 def main():
     st.title("YouTube Video Summarizer")
 
@@ -287,9 +300,16 @@ def main():
                 st.markdown("## TL;DR")
                 st.markdown(tldr)
 
+                with st.spinner("Generating vocabulary..."):
+                    vocabulary, vocab_cost = generate_vocabulary(transcription, transcription_errors, combined_summaries, model)
+                    total_cost += vocab_cost
+
+                st.markdown("## Key Vocabulary")
+                st.markdown(vocabulary)
+
                 file_name = f"{video_title}.md" if video_title else f"{video_id}.md"
                 with open(file_name, "w") as file:
-                    file.write(f"# {video_title}\n\n{tldr}\n\n{combined_summaries}")
+                    file.write(f"# {video_title}\n\n{tldr}\n\n## Key Vocabulary\n\n{vocabulary}\n\n{combined_summaries}")
 
                 with open(file_name, "rb") as file:
                     st.download_button(
