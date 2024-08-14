@@ -9,6 +9,8 @@ import os
 import asyncio
 import json
 import logging
+import textwrap
+
 # TODO make it possible to stop between each step and adjust the value before continuing. I would also like toggles whether I'd like it to stop at a particular step or just continue automatically. Maybe a complete auto at the top and then sub toggles under. I would like an edit button that let's me tweak the generated content before it continues on.
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -247,108 +249,176 @@ def generate_vocabulary(transcription, transcription_errors, generated_notes, mo
     
     return vocabulary, cost
 
+def generate_follow_up(video_title, transcription, transcription_errors, user_takes, model):
+    system_prompt = """You are an AI assistant tasked with analyzing a video transcription and user's takes on the video. 
+    Generate a follow-up document with the following sections:
+    1. TL;DR: A brief summary of the main points.
+    2. Resonance: Ideas that resonated with the user from the video.
+    3. Dissonance: Disagreements or conflicts in ideas.
+    4. Harmony: Ideas that are separate but related.
+    5. Modulation: New ideas derived from the video.
+    
+    Use the transcription, identified transcription errors, and user's takes to inform your analysis.
+    Format your response in markdown, using h2 headings for each section."""
+
+    user_prompt = f"""Video Title: {video_title}
+
+Transcription:
+{transcription}
+
+Transcription Errors:
+{transcription_errors}
+
+User's Takes:
+{user_takes}
+
+Please generate the follow-up document as described."""
+
+    conversation = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
+
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=conversation
+    )
+
+    follow_up_content = response['choices'][0]['message']['content']
+    cost = calculate_cost(response['usage'], model)
+
+    return follow_up_content, cost
+
 def main():
     st.title("YouTube Video Summarizer")
 
+    # Initialize session state variables
+    if 'youtube_url' not in st.session_state:
+        st.session_state.youtube_url = ''
+    if 'summary_generated' not in st.session_state:
+        st.session_state.summary_generated = False
+    if 'follow_up_generated' not in st.session_state:
+        st.session_state.follow_up_generated = False
+    if 'total_cost' not in st.session_state:
+        st.session_state.total_cost = 0.0
+    if 'transcription' not in st.session_state:
+        st.session_state.transcription = ''
+    if 'transcription_errors' not in st.session_state:
+        st.session_state.transcription_errors = ''
+    if 'video_title' not in st.session_state:
+        st.session_state.video_title = ''
+    if 'summary_content' not in st.session_state:
+        st.session_state.summary_content = ''
+    if 'follow_up_content' not in st.session_state:
+        st.session_state.follow_up_content = ''
+
     model = st.selectbox("Choose the model", ["gpt-4o-mini","gpt-4o"])
 
-    youtube_url = st.text_input("Enter YouTube URL")
+    youtube_url = st.text_input("Enter YouTube URL", value=st.session_state.youtube_url)
 
     if youtube_url:
+        st.session_state.youtube_url = youtube_url
         video_id = get_video_id(youtube_url)
         if video_id:
             st.video(youtube_url)
 
-            if st.button("Summarize"):
-                total_cost = 0.0
+            # Create tabs
+            summary_tab, follow_up_tab = st.tabs(["Summary", "Follow-up"])
 
-                with st.spinner("Fetching video title..."):
-                    video_title = get_video_title(video_id)
+            with summary_tab:
+                if st.button("Generate Summary") or st.session_state.summary_generated:
+                    if not st.session_state.summary_generated:
+                        st.session_state.summary_generated = True
+                        st.session_state.total_cost = 0.0
 
-                with st.spinner("Fetching video author..."):
-                    video_author = get_video_author(video_id)
+                        with st.spinner("Generating summary..."):
+                            # Fetch video details and transcription
+                            st.session_state.video_title = get_video_title(video_id)
+                            video_author = get_video_author(video_id)
+                            st.session_state.transcription = get_transcription(video_id)
 
-                with st.spinner("Fetching transcription..."):
-                    transcription = get_transcription(video_id)
-                    # Save the transcription to a file
-                    with open(f"{video_title}_transcription.txt", "w", encoding="utf-8") as file:
-                        file.write(transcription)
+                            # Save the transcription to a file
+                            with open(f"{st.session_state.video_title}_transcription.txt", "w", encoding="utf-8") as file:
+                                file.write(st.session_state.transcription)
 
-                with st.spinner("Determining transcription errors..."):
-                    transcription_errors, error_cost = determine_transcription_errors(video_title, transcription)
-                    total_cost += error_cost
+                            # Determine transcription errors
+                            st.session_state.transcription_errors, error_cost = determine_transcription_errors(st.session_state.video_title, st.session_state.transcription)
+                            st.session_state.total_cost += error_cost
+
+                            # Generate outline
+                            outline, num_bullets, outline_cost = generate_outline(st.session_state.video_title, video_author, st.session_state.transcription, st.session_state.transcription_errors, model)
+                            st.session_state.total_cost += outline_cost
+
+                            # Generate summary for bullet 1
+                            first_summary, first_summary_cost = generate_summary(st.session_state.video_title, video_author, st.session_state.transcription, st.session_state.transcription_errors, outline, 1, None, model)
+                            st.session_state.total_cost += first_summary_cost
+
+                            # Generate summaries for remaining bullets
+                            bullet_summaries = [first_summary]
+                            remaining_summaries = asyncio.run(generate_summaries_async(st.session_state.video_title, video_author, st.session_state.transcription, st.session_state.transcription_errors, outline, num_bullets, first_summary, model))
+                            for i, (summary, cost) in enumerate(remaining_summaries, start=2):
+                                bullet_summaries.append(summary)
+                                st.session_state.total_cost += cost
+
+                            combined_summaries = "\n\n".join(bullet_summaries)
+
+                            # Generate TL;DR
+                            tldr, tldr_cost = generate_tldr(combined_summaries, model)
+                            st.session_state.total_cost += tldr_cost
+
+                            # Generate vocabulary
+                            vocabulary, vocab_cost = generate_vocabulary(st.session_state.transcription, st.session_state.transcription_errors, combined_summaries, model)
+                            st.session_state.total_cost += vocab_cost
+
+                            # Generate summary content
+                            st.session_state.summary_content = f"# {st.session_state.video_title}\n\n"
+                            st.session_state.summary_content += f"<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/{video_id}\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>\n\n"
+                            st.session_state.summary_content += f"{tldr}\n\n## Key Vocabulary\n\n{vocabulary}\n\n{combined_summaries}"
+
+                    # Display the summary and other generated content
+                    st.markdown("## Summary")
+                    st.markdown(st.session_state.summary_content)
                     st.markdown("## Potential Transcription Errors")
-                    st.markdown(transcription_errors)
+                    st.markdown(st.session_state.transcription_errors)
 
-                with st.spinner("Generating outline..."):
-                    outline, num_bullets, outline_cost = generate_outline(video_title, video_author, transcription, transcription_errors, model)
-                    total_cost += outline_cost
-                
-                    outline_markdown = "# Outline\n\n"
-                    for item in outline:
-                        if isinstance(item, dict):
-                            # Assuming the dict has 'number' and 'text' keys
-                            number = item.get('number', '')
-                            text = item.get('text', '')
-                            if '.' in number:
-                                # This is a sub-bullet
-                                outline_markdown += f"    {text}\n"
-                            else:
-                                # This is a parent bullet
-                                outline_markdown += f"{text}\n"
-                        elif isinstance(item, str):
-                            # If it's a string, just add it as is
-                            outline_markdown += f"{item}\n"
-                        else:
-                            # For any other unexpected type, convert to string and add
-                            outline_markdown += f"{str(item)}\n"
-                    
-                    st.markdown(outline_markdown)
+            with follow_up_tab:
+                user_takes = st.text_area("Enter your takes on the video (as an unordered list in markdown):")
 
-                with st.spinner("Generating summary for bullet 1..."):
-                    first_summary, first_summary_cost = generate_summary(video_title, video_author, transcription, transcription_errors, outline, 1, None, model)
-                    total_cost += first_summary_cost
-                    st.markdown("# Summary for Bullet 1")
-                    st.markdown(first_summary)
+                if st.button("Generate Follow-up") or st.session_state.follow_up_generated:
+                    if not st.session_state.follow_up_generated:
+                        st.session_state.follow_up_generated = True
+                        with st.spinner("Generating follow-up document..."):
+                            st.session_state.follow_up_content, follow_up_cost = generate_follow_up(
+                                st.session_state.video_title, 
+                                st.session_state.transcription, 
+                                st.session_state.transcription_errors, 
+                                user_takes, 
+                                model
+                            )
+                            st.session_state.total_cost += follow_up_cost
 
-                bullet_summaries = [first_summary]
-                with st.spinner("Generating summaries for remaining bullets..."):
-                    remaining_summaries = asyncio.run(generate_summaries_async(video_title, video_author, transcription, transcription_errors, outline, num_bullets, first_summary, model))
-                    for i, (summary, cost) in enumerate(remaining_summaries, start=2):
-                        bullet_summaries.append(summary)
-                        total_cost += cost
-                        st.markdown(f"# Summary for Bullet {i}")
-                        st.markdown(summary)
+                    st.markdown("## Follow-up Document")
+                    st.markdown(st.session_state.follow_up_content)
 
-                combined_summaries = "\n\n".join(bullet_summaries)
+                    follow_up_file_name = f"RE - {st.session_state.video_title}.md"
+                    with open(follow_up_file_name, "w") as file:
+                        file.write(st.session_state.follow_up_content)
 
-                with st.spinner("Generating TL;DR..."):
-                    tldr, tldr_cost = generate_tldr(combined_summaries, model)
-                    total_cost += tldr_cost
+                    with open(follow_up_file_name, "rb") as file:
+                        st.download_button(
+                            label="Download Follow-up Document",
+                            data=file,
+                            file_name=follow_up_file_name,
+                            mime="text/markdown"
+                        )
 
-                st.markdown("## TL;DR")
-                st.markdown(tldr)
+            st.markdown(f"# Total Cost: ${st.session_state.total_cost:.2f}")
 
-                with st.spinner("Generating vocabulary..."):
-                    vocabulary, vocab_cost = generate_vocabulary(transcription, transcription_errors, combined_summaries, model)
-                    total_cost += vocab_cost
+            if st.button("Reset"):
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                st.experimental_rerun()
 
-                st.markdown("## Key Vocabulary")
-                st.markdown(vocabulary)
-
-                file_name = f"{video_title}.md" if video_title else f"{video_id}.md"
-                with open(file_name, "w") as file:
-                    file.write(f"# {video_title}\n\n{tldr}\n\n## Key Vocabulary\n\n{vocabulary}\n\n{combined_summaries}")
-
-                with open(file_name, "rb") as file:
-                    st.download_button(
-                        label="Download Markdown",
-                        data=file,
-                        file_name=file_name,
-                        mime="text/markdown"
-                    )
-                
-                st.markdown(f"# Total Cost: ${total_cost:.2f}")
         else:
             st.error("Invalid YouTube URL")
 
