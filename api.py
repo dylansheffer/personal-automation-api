@@ -413,7 +413,15 @@ async def generate_follow_up_endpoint(user_takes: UserTakes, model: str):
     
     follow_up_content, cost = generate_follow_up(video_details["title"], transcription, errors, user_takes.takes, model)
     
-    return {"follow_up": follow_up_content, "cost": cost}
+    title = f"RE: {video_details['title']}"
+    file_name = f"RE_{video_details['title'].replace(' ', '_').replace(':', '_')}.md"
+    
+    return {
+        "follow_up": follow_up_content,
+        "cost": cost,
+        "title": title,
+        "file_name": file_name
+    }
 
 @app.post("/full_process")
 async def full_process_endpoint(youtube_url: YouTubeURL, model: str, background_tasks: BackgroundTasks):
@@ -445,20 +453,17 @@ async def full_process_endpoint(youtube_url: YouTubeURL, model: str, background_
     
     total_cost = error_cost + outline_cost + summary_cost + tldr_cost + vocab_cost
     
-    # Save the summary content to a file in the background
-    background_tasks.add_task(save_summary_to_file, video_details["title"], summary_content)
+    title = video_details['title']
+    file_name = f"{title.replace(' ', '_').replace(':', '_')}.md"
     
     return {
         "video_id": video_id,
         "summary": summary_content,
         "transcription_errors": errors,
-        "cost": total_cost
+        "cost": total_cost,
+        "title": title,
+        "file_name": file_name
     }
-
-def save_summary_to_file(title: str, content: str):
-    filename = f"summary_{title.replace(' ', '_')}.md"
-    with open(filename, "w") as f:
-        f.write(content)
 
 if __name__ == "__main__":
     import uvicorn
