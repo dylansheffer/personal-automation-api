@@ -105,7 +105,7 @@ def get_video_details(video_id):
 def get_transcription(video_id):
     logger.info(f"Fetching transcription for video ID: {video_id}")
     max_retries = 3
-    retry_delay = 5  # seconds
+    retry_delay = 2  # seconds
 
     for attempt in range(max_retries):
         try:
