@@ -2,21 +2,15 @@ import requests
 import json
 import os
 
-url = "http://localhost:8000/full_process"
+url = "http://localhost:8000/youtube_notes/full_process"
 params = {
     "model": "gpt-4o-mini"
 }
 data = {
-    "url": "https://youtu.be/QghbHQq6eHw"
+    "url": "https://www.youtube.com/watch?v=4hSFcjspGOw"
 }
 response = requests.post(url, params=params, json=data)
 result = response.json()
-
-# Save the result to a JSON file
-with open('summary_result.json', 'w') as f:
-    json.dump(result, f, indent=4)
-
-print("Summary saved to summary_result.json")
 
 # Create directories if they don't exist
 os.makedirs('notes', exist_ok=True)
@@ -35,3 +29,4 @@ with open(transcript_file_path, 'w') as f:
 
 print(f"Transcription saved to {transcript_file_path}")
 print(f"Summary content saved to {notes_file_path}")
+print(f"Total cost: ${result['cost']:.6f}")

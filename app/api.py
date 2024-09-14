@@ -351,7 +351,9 @@ Please provide the vocabulary in a markdown format, with each term as a heading 
 
     return vocabulary, cost
 
-@router.post("/video_details")
+# YouTube Notes Endpoints
+
+@router.post("/youtube_notes/video_details", tags=["Youtube notes"])
 async def get_video_details_endpoint(youtube_url: YouTubeURL):
     video_id = get_video_id(str(youtube_url.url))
     if not video_id:
@@ -359,18 +361,18 @@ async def get_video_details_endpoint(youtube_url: YouTubeURL):
     details = get_video_details(video_id)
     return {"video_id": video_id, "details": details}
 
-@router.get("/transcription/{video_id}")
+@router.get("/youtube_notes/transcription/{video_id}", tags=["Youtube notes"])
 async def get_transcription_endpoint(video_id: str):
     transcription = get_transcription(video_id)
     return {"transcription": transcription}
 
-@router.post("/transcription_errors")
+@router.post("/youtube_notes/transcription_errors", tags=["Youtube notes"])
 async def determine_transcription_errors_endpoint(video_id: str, video_title: str):
     transcription = get_transcription(video_id)
     errors, cost = determine_transcription_errors(video_title, transcription)
     return {"errors": errors, "cost": cost}
 
-@router.post("/generate_outline")
+@router.post("/youtube_notes/generate_outline", tags=["Youtube notes"])
 async def generate_outline_endpoint(video_id: str, model: str):
     video_details = get_video_details(video_id)
     transcription = get_transcription(video_id)
@@ -378,7 +380,7 @@ async def generate_outline_endpoint(video_id: str, model: str):
     outline, num_bullets, cost = generate_outline(video_details["title"], video_details["channel"], transcription, errors, model)
     return {"outline": outline, "num_bullets": num_bullets, "cost": cost}
 
-@router.post("/generate_summary")
+@router.post("/youtube_notes/generate_summary", tags=["Youtube notes"])
 async def generate_summary_endpoint(video_id: str, model: str):
     video_details = get_video_details(video_id)
     transcription = get_transcription(video_id)
@@ -405,7 +407,7 @@ async def generate_summary_endpoint(video_id: str, model: str):
     
     return {"summary": summary_content, "cost": total_cost}
 
-@router.post("/generate_follow_up")
+@router.post("/youtube_notes/generate_follow_up", tags=["Youtube notes"])
 async def generate_follow_up_endpoint(user_takes: UserTakes, model: str):
     video_details = get_video_details(user_takes.video_id)
     transcription = get_transcription(user_takes.video_id)
@@ -423,7 +425,7 @@ async def generate_follow_up_endpoint(user_takes: UserTakes, model: str):
         "file_name": file_name
     }
 
-@router.post("/full_process")
+@router.post("/youtube_notes/full_process", tags=["Youtube notes"])
 async def full_process_endpoint(youtube_url: YouTubeURL, model: str, background_tasks: BackgroundTasks):
     video_id = get_video_id(str(youtube_url.url))
     if not video_id:

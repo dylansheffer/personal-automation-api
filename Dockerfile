@@ -17,15 +17,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --upgrade pip
 RUN pip install poetry
 
-# Copy poetry files
-COPY pyproject.toml poetry.lock /app/
+# Copy the entire project
+COPY . .
 
-# Install dependencies
+# Update Poetry installation command
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --no-interaction --no-ansi
-
-# Copy project
-COPY . /app/
+    && poetry install --only main --no-interaction --no-ansi
 
 # Expose port
 EXPOSE 8000

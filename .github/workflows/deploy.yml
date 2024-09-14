@@ -27,12 +27,12 @@ jobs:
         with:
           context: .
           push: true
-          tags: dylansheffer/youtube-notes-api:latest
+          tags: dylansheffer/personal-automation-api:latest
 
       - name: Deploy to Render
         uses: render-examples/deploy-to-render@v1
         with:
           api_key: ${{ secrets.RENDER_API_KEY }}
-          service_id: your_render_service_id
+          service_id: ${{ secrets.RENDER_SERVICE_ID }}
           branch: main
           wait_for_deployment: true
