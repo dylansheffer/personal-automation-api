@@ -93,4 +93,19 @@ Why Render.com, you ask? Because:
    - This is a living project
    - Got an idea? Let's automate it!
 
+## Installation on Unraid
+
+To install this application on your Unraid server:
+
+1. Open the Unraid web interface and go to the "Apps" tab.
+2. Search for "personal-automation-api" in the Community Applications.
+3. Click on the application and then click "Install".
+4. Configure the following settings:
+   - API_KEY: Your personal API key for accessing the application
+   - OPENAI_API_KEY: Your OpenAI API key
+   - WebUI Port: The port you want to use for accessing the web interface (default is 8000)
+5. Click "Apply" to start the container.
+
+You can now access the application by navigating to `http://[YOUR_UNRAID_IP]:[WebUI_Port]` in your web browser.
+
 Remember, this isn't just a project, it's a lifestyle. We're not just writing APIs, we're reclaiming our time and sanity. Now go forth and automate like the brilliant, lazy genius you are! 🚀🧠💤

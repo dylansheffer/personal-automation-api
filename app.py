@@ -14,7 +14,7 @@ params = {
     "model": "gpt-4o-mini"
 }
 data = {
-    "url": "https://www.youtube.com/watch?v=zeAyuLc_f3Q"
+    "url": "https://youtu.be/5tvztBs_VYc"
 }
 headers = {
     "X-API-Key": os.getenv("API_KEY")
