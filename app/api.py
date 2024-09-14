@@ -88,7 +88,7 @@ def get_video_details(video_id):
         if meta_channel and 'content' in meta_channel.attrs:
             details["channel"] = meta_channel['content']
         else:
-            channel_element = soup.select_one('yt-formatted-string#text.ytd-channel-name')
+            channel_element = soup.select_one('a.yt-simple-endpoint.style-scope.yt-formatted-string')
             if channel_element:
                 details["channel"] = channel_element.text.strip()
         
@@ -414,7 +414,7 @@ async def generate_follow_up_endpoint(user_takes: UserTakes, model: str):
     follow_up_content, cost = generate_follow_up(video_details["title"], transcription, errors, user_takes.takes, model)
     
     title = f"RE: {video_details['title']}"
-    file_name = f"RE_{video_details['title'].replace(' ', '_').replace(':', '_')}.md"
+    file_name = f"RE_{video_details['title'].replace(':', '_')}.md"
     
     return {
         "follow_up": follow_up_content,
@@ -454,12 +454,13 @@ async def full_process_endpoint(youtube_url: YouTubeURL, model: str, background_
     total_cost = error_cost + outline_cost + summary_cost + tldr_cost + vocab_cost
     
     title = video_details['title']
-    file_name = f"{title.replace(' ', '_').replace(':', '_')}.md"
+    file_name = f"{title.replace(':', '_')}.md"
     
     return {
         "video_id": video_id,
         "summary": summary_content,
         "transcription_errors": errors,
+        "transcription": transcription,
         "cost": total_cost,
         "title": title,
         "file_name": file_name
