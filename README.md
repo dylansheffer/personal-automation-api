@@ -32,8 +32,10 @@ This is a collection of personal automation APIs that do one thing: make tedious
 
 1. Clone this repo
 2. Set up your environment (check out the `.env.example`)
+   - Make sure to set both the `OPENAI_API_KEY` and `API_KEY` in your `.env` file
 3. Deploy to Render.com (because free tier = more money for coffee)
 4. Use the endpoints in `api.py` to revolutionize your life
+   - Remember to include your API key in the `X-API-Key` header for all requests
 
 ## Key Files
 

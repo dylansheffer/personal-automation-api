@@ -1,15 +1,21 @@
 import requests
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 url = "http://localhost:8000/youtube_notes/full_process"
 params = {
     "model": "gpt-4o-mini"
 }
 data = {
-    "url": "https://www.youtube.com/watch?v=4hSFcjspGOw"
+    "url": "https://www.youtube.com/watch?v=CVBpYfPKGlE"
 }
-response = requests.post(url, params=params, json=data)
+headers = {
+    "X-API-Key": os.getenv("API_KEY")
+}
+response = requests.post(url, params=params, json=data, headers=headers)
 result = response.json()
 
 # Create directories if they don't exist
