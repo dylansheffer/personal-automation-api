@@ -5,18 +5,44 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-url = "http://localhost:8000/youtube_notes/full_process"
+local_url = "http://localhost:8000/youtube_notes/full_process"
+deployed_url = "https://automate-the-suck-out-of-life.onrender.com/youtube_notes/full_process"
+
+url = deployed_url  # Use this for the deployed version
+
 params = {
     "model": "gpt-4o-mini"
 }
 data = {
-    "url": "https://www.youtube.com/watch?v=CVBpYfPKGlE"
+    "url": "https://www.youtube.com/watch?v=zeAyuLc_f3Q"
 }
 headers = {
     "X-API-Key": os.getenv("API_KEY")
 }
-response = requests.post(url, params=params, json=data, headers=headers)
-result = response.json()
+
+print(f"Using API Key: {os.getenv('API_KEY')}")  # Add this line
+
+# Add error handling and timeout
+try:
+    response = requests.post(url, params=params, json=data, headers=headers, timeout=180)
+    response.raise_for_status()  # Raises an HTTPError for bad responses
+except requests.exceptions.RequestException as e:
+    print(f"An error occurred: {e}")
+    print(f"Response content: {e.response.text if hasattr(e, 'response') else 'No response content'}")
+    exit(1)
+
+# Check the response content before parsing
+if response.status_code == 200:
+    try:
+        result = response.json()
+    except requests.exceptions.JSONDecodeError as e:
+        print(f"JSON decode error: {e}")
+        print(f"Response content: {response.text}")
+        exit(1)
+else:
+    print(f"Request failed with status code: {response.status_code}")
+    print(f"Response content: {response.text}")
+    exit(1)
 
 # Create directories if they don't exist
 os.makedirs('notes', exist_ok=True)
