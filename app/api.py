@@ -425,6 +425,40 @@ async def generate_follow_up_endpoint(user_takes: UserTakes, model: str):
         "file_name": file_name
     }
 
+def generate_follow_up(video_title: str, transcription: str, errors: List[str], user_takes: List[str], model: str) -> Tuple[str, float]:
+    prompt = f"""
+    You are an AI assistant tasked with generating follow-up content based on a user's takes on a YouTube video.
+
+    Video Title: {video_title}
+    Transcription Errors: {', '.join(errors)}
+
+    User's Takes:
+    {' '.join(user_takes)}
+
+    Based on the user's takes and the video content, generate a thoughtful follow-up that includes:
+    1. A brief summary of the user's main points
+    2. Additional insights or perspectives related to the user's takes
+    3. Potential questions or areas for further exploration
+    4. Any relevant connections to other topics or ideas
+
+    Please format the follow-up content in Markdown.
+    """
+
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": "You are a helpful AI assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.7,
+        max_tokens=1000
+    )
+
+    follow_up_content = response.choices[0].message['content'].strip()
+    cost = calculate_cost(model, prompt, follow_up_content)
+
+    return follow_up_content, cost
+
 @router.post("/youtube_notes/full_process", tags=["Youtube notes"])
 async def full_process_endpoint(youtube_url: YouTubeURL, model: str, background_tasks: BackgroundTasks):
     video_id = get_video_id(str(youtube_url.url))

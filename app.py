@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 local_url = "http://localhost:8000/youtube_notes/full_process"
-deployed_url = "https://automate-the-suck-out-of-life.onrender.com/youtube_notes/full_process"
+deployed_url = "http://local.dylansheffer.com:8000/youtube_notes/full_process"
 
 url = deployed_url  # Use this for the deployed version
 
@@ -14,7 +14,7 @@ params = {
     "model": "gpt-4o-mini"
 }
 data = {
-    "url": "https://youtu.be/5tvztBs_VYc"
+    "url": "https://www.youtube.com/watch?v=zeAyuLc_f3Q"
 }
 headers = {
     "X-API-Key": os.getenv("API_KEY")
