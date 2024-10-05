@@ -1,111 +1,103 @@
-# Personal Automation API: Because Life's Too Short for Manual Labor 🚀
+# Personal Automation API
 
-> **Disclaimer:** This README is a work in progress, just like my never-ending quest to automate everything in sight.
+A collection of APIs for automating personal tasks, built with FastAPI and deployable on Unraid.
 
-Hey there, fellow automation enthusiasts! Welcome to my personal set of APIs that make life more convenient because **AUTOMATION IS THE KEY TO SANITY**!
+## Quick Start
 
-## What's This All About?
+### Local Development (M1 MacBook)
 
-This is a collection of personal automation APIs that do one thing: make tedious tasks disappear so we can focus on the important stuff (like binge-watching our favorite shows). Is it perfect? Nope. Is it constantly evolving? You bet! But it works, and it's making my life easier one API call at a time.
+1. **Clone and setup:**
+   ```bash
+   git clone https://github.com/dylansheffer/personal-automation-api.git
+   cd personal-automation-api
+   cp .env.example .env
+   # Edit .env with your OPENAI_API_KEY and API_KEY
+   ```
 
-## What Can It Do?
+2. **Run locally:**
+   ```bash
+   ./run.sh start
+   ```
 
-1. **YouTube Summarizer**: 
-   - Feed it a YouTube video URL
-   - Get a detailed summary
-   - Knowledge acquisition: Speedrun Edition
+3. **Access API:** Open `http://localhost:1621`
 
-2. **Obsidian Vault Integration**:
-   - Automatically sync summaries to your Obsidian vault
-   - Because knowledge is power, and power belongs in Obsidian
+### Deployment on Unraid
 
-3. **Hot Takes Generator**:
-   - Input your thoughts on a video
-   - Get a structured, coherent response
-   - Instant pseudo-intellectualism!
+1. **Initial Setup:**
+   - In Unraid, go to "Apps" > search for "personal-automation-api"
+   - Click "Install" and configure:
+     - `API_KEY`: Your personal API key
+     - `OPENAI_API_KEY`: Your OpenAI API key
+     - `WebUI Port`: Default is 1621
+   - Click "Apply"
 
-4. **[Your Next Brilliant Idea Here]**:
-   - The sky's the limit!
-   - Got a repetitive task? Let's API-ify it!
+2. **Access:** Navigate to `http://[YOUR_UNRAID_IP]:1621`
 
-## How to Use This Magic
+### Updating on Unraid
 
-1. Clone this repo
-2. Set up your environment (check out the `.env.example`)
-   - Make sure to set both the `OPENAI_API_KEY` and `API_KEY` in your `.env` file
-3. Deploy to Render.com (because free tier = more money for coffee)
-4. Use the endpoints in `api.py` to revolutionize your life
-   - Remember to include your API key in the `X-API-Key` header for all requests
+1. **Push changes to GitHub:**
+   ```bash
+   git add .
+   git commit -m "Your update message"
+   git push origin main
+   ```
 
-## Key Files
+2. **GitHub Actions:**
+   - Automatically builds and pushes a new Docker image to Docker Hub.
 
-- `main.py`: The heart of our FastAPI application
-- `api.py`: Where the real magic happens (all our endpoints live here)
+3. **Update on Unraid:**
+   a. **Manual Update:**
+      - In Unraid, go to the Docker tab.
+      - Find "personal-automation-api" and click "Update".
+      - Unraid will pull the latest image and restart the container.
+   
+   b. **Automatic Update (Optional):**
+      - Install a plugin like "Docker Auto Update" from Community Applications.
+      - Configure it to check for updates to your container periodically.
 
-## Endpoints (So Far)
+4. **Template Updates:**
+   - If you've made changes to the template itself:
+     - Update the template file in your GitHub repository.
+     - Users need to manually update the template in Unraid's Community Applications.
 
-- `/video_summary`: Give it a YouTube URL, get a summary
-- `/generate_follow_up`: Feed it your thoughts, get structured ideas back
-- `/[your_custom_endpoint]`: The next big thing in personal automation?
+Note: The frequency of updates depends on your Unraid settings or any auto-update plugins you've installed.
 
-## The Grand Vision: API on Render.com
+### Making Changes
 
-Why Render.com, you ask? Because:
+1. **Edit code locally**
+2. **Test:**
+   ```bash
+   ./run.sh start
+   ```
+3. **If successful, push to GitHub (see "Updating on Unraid")**
 
-1. **Free Tier Goodness**: 
-   - We're all about that $0 life
-   - More features, less financial guilt
+## Key Components
 
-2. **Always On**:
-   - Your automations never sleep (even if you do)
-   - Instant access, anytime, anywhere
+- `app/main.py`: FastAPI application entry point
+- `app/api.py`: API endpoints
+- `Dockerfile`: Multi-architecture image configuration
+- `run.sh`: Script for building and running the application locally
+- `.github/workflows/deploy.yml`: CI/CD pipeline
 
-3. **Scalability**:
-   - Start small, dream big
-   - Easy to upgrade as your automation empire grows
+## Current Endpoints
 
-4. **Integration Paradise**:
-   - Connect with other services effortlessly
-   - Build your own personal automation ecosystem
+- `/video_summary`: YouTube video summarizer
+- `/generate_follow_up`: Structured response generator
 
-## How We're Doing It
+## Adding New Endpoints
 
-1. Develop locally (because bugs hate the smell of home)
-2. Push to GitHub (version control is your friend)
-3. Connect Render.com to your GitHub repo
-4. Watch in awe as Render deploys your automation magic
+1. Open `app/api.py`
+2. Add new endpoint function:
+   ```python
+   @router.post("/new_endpoint")
+   async def new_endpoint(data: SomeModel):
+       # Your logic here
+       return {"result": result}
+   ```
+3. If needed, add new models in `app/models.py`
+4. Test locally, then deploy (see "Updating on Unraid")
 
-## The Roadmap to Automation Nirvana
+## Troubleshooting
 
-1. **API Expansion**
-   - Keep adding new endpoints for every life task we can automate
-   - Sky's the limit! (Or is it? Maybe we need a "break the sky" API)
-
-2. **UI Dreams**
-   - Eventually, we might want a simple frontend
-   - Because sometimes, even API lovers need pretty buttons
-
-3. **Security First**
-   - Implement proper authentication
-   - Keep your automations safe from prying eyes
-
-4. **Continuous Improvement**
-   - This is a living project
-   - Got an idea? Let's automate it!
-
-## Installation on Unraid
-
-To install this application on your Unraid server:
-
-1. Open the Unraid web interface and go to the "Apps" tab.
-2. Search for "personal-automation-api" in the Community Applications.
-3. Click on the application and then click "Install".
-4. Configure the following settings:
-   - API_KEY: Your personal API key for accessing the application
-   - OPENAI_API_KEY: Your OpenAI API key
-   - WebUI Port: The port you want to use for accessing the web interface (default is 8000)
-5. Click "Apply" to start the container.
-
-You can now access the application by navigating to `http://[YOUR_UNRAID_IP]:[WebUI_Port]` in your web browser.
-
-Remember, this isn't just a project, it's a lifestyle. We're not just writing APIs, we're reclaiming our time and sanity. Now go forth and automate like the brilliant, lazy genius you are! 🚀🧠💤
+- **API not responding:** Check Unraid Docker logs
+- **Changes not reflecting:** Ensure GitHub Actions completed successfully

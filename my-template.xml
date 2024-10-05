@@ -9,7 +9,7 @@
   <Project>https://github.com/dylansheffer/personal-automation-api</Project>
   <Overview>Personal Automation API for YouTube notes and summaries</Overview>
   <Category>Productivity: Tools:</Category>
-  <WebUI>http://[IP]:[PORT:8000]</WebUI>
+  <WebUI>http://[IP]:[PORT:1621]</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/dylansheffer/personal-automation-api/main/my-template.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/dylansheffer/personal-automation-api/main/icon.png</Icon>
   <ExtraParams/>
@@ -21,5 +21,5 @@
   <Requires/>
   <Config Name="API_KEY" Target="API_KEY" Default="" Mode="" Description="Your API key" Type="Variable" Display="always" Required="true" Mask="false"/>
   <Config Name="OPENAI_API_KEY" Target="OPENAI_API_KEY" Default="" Mode="" Description="Your OpenAI API key" Type="Variable" Display="always" Required="true" Mask="true"/>
-  <Config Name="WebUI" Target="8000" Default="8000" Mode="tcp" Description="Web UI Port" Type="Port" Display="always" Required="true" Mask="false"/>
+  <Config Name="WebUI" Target="1621" Default="1621" Mode="tcp" Description="Web UI Port" Type="Port" Display="always" Required="true" Mask="false"/>
 </Container>
