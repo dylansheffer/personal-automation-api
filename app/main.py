@@ -7,7 +7,9 @@ import logging
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging based on environment
+log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(level=log_level)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Personal Automation API", description="API for personal automations")
@@ -15,7 +17,7 @@ app = FastAPI(title="Personal Automation API", description="API for personal aut
 API_KEY = os.getenv("API_KEY")
 API_KEY_NAME = "X-API-Key"
 
-logger.info(f"Loaded API Key from environment: {API_KEY}")
+logger.info(f"Loaded API Key from environment: pkl-**********************{API_KEY[-4:]}")
 
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 

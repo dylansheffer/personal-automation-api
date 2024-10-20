@@ -3,17 +3,44 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 import time
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound  # Add these imports
+import urllib.parse  # Add this import
+import os  # Add this import
 
 logger = logging.getLogger(__name__)
 
-def get_video_id(url):
-    logger.info(f"Attempting to extract video ID from URL: {url}")
-    video_id = re.search(r'(?<=v=)[^&#]+', url)
-    if not video_id:
-        video_id = re.search(r'(?<=be/)[^&#]+', url)
-    result = video_id.group(0) if video_id else None
-    logger.info(f"Extracted video ID: {result}")
-    return result
+# Set log level based on environment
+log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+logger.setLevel(getattr(logging, log_level, logging.INFO))
+
+def get_video_id(identifier):
+    logger.info(f"Attempting to extract video ID from identifier: {identifier}")
+    
+    # Decode the URL-encoded identifier
+    identifier = urllib.parse.unquote(identifier)
+    
+    # Check if the identifier is already a video ID
+    if re.match(r'^[a-zA-Z0-9_-]{11}$', identifier):
+        logger.info(f"Identifier is already a valid video ID: {identifier}")
+        return identifier
+    
+    # Try to extract video ID from URL
+    patterns = [
+        r'(?<=v=)[^&#]+',       # Standard YouTube URL
+        r'(?<=be/)[^&#]+',      # Shortened YouTube URL
+        r'(?<=embed/)[^&#]+',   # Embedded YouTube URL
+        r'(?<=youtu.be/)[^&#]+'  # youtu.be URL
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, identifier)
+        if match:
+            result = match.group(0)
+            logger.info(f"Extracted video ID: {result}")
+            return result
+    
+    logger.warning(f"Could not extract video ID from identifier: {identifier}")
+    return None
 
 def get_video_details(video_id):
     logger.info(f"Fetching video details for video ID: {video_id}")
@@ -39,14 +66,27 @@ def get_video_details(video_id):
             if title_tag:
                 details["title"] = title_tag.string.split(' - YouTube')[0]
 
-        # Try to get channel name
-        meta_channel = soup.find('meta', {'itemprop': 'channelName'})
-        if meta_channel and 'content' in meta_channel.attrs:
-            details["channel"] = meta_channel['content']
-        else:
-            channel_element = soup.select_one('a.yt-simple-endpoint.style-scope.yt-formatted-string')
+        # Try multiple selectors for channel name
+        selectors = [
+            '#channel-name #text',
+            'yt-formatted-string[id="text"][class="ytd-channel-name"]',
+            'yt-formatted-string[class="ytd-channel-name"]',
+            'a[class="yt-simple-endpoint style-scope yt-formatted-string"]'
+        ]
+
+        for selector in selectors:
+            channel_element = soup.select_one(selector)
             if channel_element:
                 details["channel"] = channel_element.text.strip()
+                logger.info(f"Found channel name using selector: {selector}")
+                break
+
+        if details["channel"] == "Unknown Channel":
+            logger.warning("Could not find channel name using any selector")
+            logger.debug(f"HTML content length: {len(soup.prettify())}")
+            with open('debug_html_content.log', 'w', encoding='utf-8') as f:
+                f.write(soup.prettify())
+            logger.debug("Full HTML content saved to debug_html_content.log")
 
         logger.info(f"Retrieved video details: {details}")
         return details
@@ -58,39 +98,16 @@ def get_video_details(video_id):
             "channel": "Error Fetching Channel"
         }
 
-def get_transcription(video_id):
-    logger.info(f"Fetching transcription for video ID: {video_id}")
-    max_retries = 3
-    retry_delay = 2  # seconds
-
-    for attempt in range(max_retries):
-        try:
-            start_time = time.time()
-            transcript = YouTubeTranscriptApi.get_transcript(video_id)
-            end_time = time.time()
-
-            transcription = " ".join([t['text'] for t in transcript])
-            logger.info(f"Retrieved transcription (first 100 characters): {transcription[:100]}...")
-            logger.info(f"Transcription fetch took {end_time - start_time:.2f} seconds")
-            return transcription
-
-        except (TranscriptsDisabled, NoTranscriptFound) as e:
-            logger.error(f"No transcription available for video ID {video_id}: {str(e)}")
-            return f"No transcription available: {str(e)}"
-
-        except Exception as e:
-            if attempt < max_retries - 1:
-                logger.warning(
-                    f"Error fetching transcription (attempt {attempt + 1}/{max_retries}): {str(e)}. Retrying in {retry_delay} seconds..."
-                )
-                time.sleep(retry_delay)
-            else:
-                logger.error(f"Failed to fetch transcription after {max_retries} attempts: {str(e)}")
-                return f"Error fetching transcription: {str(e)}"
-
-    return "Failed to fetch transcription after multiple attempts"
+def get_transcription(video_id: str) -> str:
+    try:
+        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+        transcription = " ".join([entry['text'] for entry in transcript_list])
+        return transcription
+    except (TranscriptsDisabled, NoTranscriptFound) as e:
+        logger.error(f"No transcript available for video ID {video_id}: {e}")
+        return ""
 
 def calculate_cost(usage, model_costs, model):
-    input_cost = model_costs[model]["input"] * usage["prompt_tokens"] / 1000
-    output_cost = model_costs[model]["output"] * usage["completion_tokens"] / 1000
+    input_cost = usage.prompt_tokens * model_costs[model]["input"] / 1000
+    output_cost = usage.completion_tokens * model_costs[model]["output"] / 1000
     return input_cost + output_cost

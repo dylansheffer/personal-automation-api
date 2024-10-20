@@ -6,39 +6,58 @@ from app.prompts import (
     GENERATE_OUTLINE_SYSTEM_PROMPT,
     GENERATE_SUMMARY_SYSTEM_PROMPT,
     GENERATE_TLDR_SYSTEM_PROMPT,
-    GENERATE_VOCABULARY_SYSTEM_PROMPT
+    GENERATE_VOCABULARY_SYSTEM_PROMPT,
+    TRANSCRIPTION_ERROR_SYSTEM_PROMPT
 )
+from app.models import (
+    TranscriptionErrorResponse,
+    OutlineResponse,
+    SummaryResponse,
+    TranscriptionError
+)
+from app.config import model_costs
 
 logger = logging.getLogger(__name__)
 
 def generate_outline(video_title, video_author, transcription, transcription_errors, model):
     logger.info("Starting outline generation")
-    conversation_outline = [
+    conversation = [
         {"role": "system", "content": GENERATE_OUTLINE_SYSTEM_PROMPT.format(video_title=video_title, video_author=video_author)},
-        {"role": "system", "content": transcription_errors},
+        {"role": "system", "content": json.dumps(transcription_errors, indent=2)},
         {"role": "user", "content": transcription}
     ]
 
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=conversation_outline,
-        response_format={"type": "json_object"}
-    )
-    result = response['choices'][0]['message']['content']
-    
-    # Parse the JSON response
-    parsed_result = json.loads(result)
-    outline = parsed_result['outline']
-    num_bullets = parsed_result['num_bullets']
-    
-    logger.info(f"Generated outline with {num_bullets} parent bullet points")
-    return outline, num_bullets, calculate_cost(response['usage'], model)
+    functions = [
+        {
+            "name": "outline_response",
+            "description": "Generates an outline of the video content.",
+            "parameters": OutlineResponse.schema()
+        }
+    ]
+
+    try:
+        response = openai.ChatCompletion.create(
+            model=model,
+            messages=conversation,
+            functions=functions,
+            function_call={"name": "outline_response"}
+        )
+
+        arguments = response['choices'][0]['message']['function_call']['arguments']
+        outline_response = OutlineResponse.parse_raw(arguments)
+
+        total_cost = calculate_cost(response['usage'], model_costs, model)
+
+        return outline_response.outline, outline_response.num_bullets, total_cost
+    except Exception as e:
+        logger.error(f"Error generating outline: {e}")
+        return None, 0, 0.0
 
 def generate_summary(video_title, video_author, transcription, transcription_errors, outline, bullet_number, first_summary, model):
     logger.info(f"Starting summary generation for bullet {bullet_number}")
     conversation_summary = [
         {"role": "system", "content": GENERATE_SUMMARY_SYSTEM_PROMPT},
-        {"role": "system", "content": transcription_errors},
+        {"role": "system", "content": json.dumps(transcription_errors, indent=2)},
         {"role": "user", "content": f"Using this outline as a reference to ensure you're covering all the points mentioned in the outline for the video titled '{video_title}' by {video_author}, your task is to create a detailed summary that DOES NOT exclude important details and examples mentioned in the source text. Let's start with bullet {bullet_number}.\n---\n\n## Video Outline\n{outline}\n\n## Video Transcription\n{transcription}\n\n"}
     ]
     if first_summary and bullet_number > 1:
@@ -49,7 +68,7 @@ def generate_summary(video_title, video_author, transcription, transcription_err
     summary = response['choices'][0]['message']['content']
     
     logger.info(f"Generated summary for bullet {bullet_number}")
-    return summary, calculate_cost(response['usage'], model)
+    return summary, calculate_cost(response['usage'], model_costs, model)
 
 def generate_tldr(complete_summary, model):
     logger.info("Starting TL;DR generation")
@@ -72,9 +91,9 @@ Your TL;DR should be 2-3 sentences long and capture the main points of the text.
     )
 
     tldr = response['choices'][0]['message']['content'].strip()
-    cost = calculate_cost(response['usage'], model)
+    cost = calculate_cost(response['usage'], model_costs, model)
 
-    logger.info(f"Generated TL;DR: {tldr}")
+    logger.info(f"Generated TL;DR (first 100 characters): {tldr[:100]}...")
     logger.info(f"TL;DR generation cost: ${cost:.6f}")
 
     return tldr, cost
@@ -92,7 +111,7 @@ Summary:
 {combined_summaries}
 
 Potential transcription errors:
-{transcription_errors}
+{json.dumps(transcription_errors, indent=2)}
 
 Please provide the vocabulary in a markdown format, with each term as a heading followed by its explanation."""
 
@@ -107,8 +126,8 @@ Please provide the vocabulary in a markdown format, with each term as a heading 
     )
 
     vocabulary = response['choices'][0]['message']['content'].strip()
-    cost = calculate_cost(response['usage'], model)
-
+    cost = calculate_cost(response['usage'], model_costs, model)  # Add model_costs and model arguments
+    
     logger.info(f"Generated vocabulary (first 100 characters): {vocabulary[:100]}...")
     logger.info(f"Vocabulary generation cost: ${cost:.6f}")
 
@@ -149,3 +168,46 @@ def generate_follow_up(video_title, transcription, errors, user_takes, model):
 
     logger.info(f"Generated follow-up content")
     return follow_up_content, cost
+
+def determine_transcription_errors(video_title, transcription, model):
+    try:
+        logger.info("Starting transcription error determination")
+        system_prompt = TRANSCRIPTION_ERROR_SYSTEM_PROMPT
+
+        user_prompt = f"""<|VIDEO_TITLE|>
+{video_title}
+</|VIDEO_TITLE|>
+
+<|TRANSCRIPT|>
+{transcription}
+</|TRANSCRIPT|>"""
+
+        conversation = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+
+        functions = [
+            {
+                "name": "transcription_error_response",
+                "description": "Parses transcription errors from the transcription.",
+                "parameters": TranscriptionErrorResponse.schema()
+            }
+        ]
+
+        response = openai.ChatCompletion.create(
+            model=model,
+            messages=conversation,
+            functions=functions,
+            function_call={"name": "transcription_error_response"}
+        )
+
+        arguments = response['choices'][0]['message']['function_call']['arguments']
+        transcription_errors = TranscriptionErrorResponse.parse_raw(arguments)
+
+        total_cost = calculate_cost(response['usage'], model_costs, model)
+
+        return transcription_errors, total_cost
+    except Exception as e:
+        logger.error(f"Error determining transcription errors: {e}")
+        return None, 0.0
